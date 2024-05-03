@@ -54,26 +54,54 @@ env:
   # SERVICE: YOUR_SERVICE_NAME # TODO: update Cloud Run service name
   # REGION: YOUR_SERVICE_REGION # TODO: update Cloud Run service region
 
+# jobs:
+#   job_id:
+#     runs-on: ubuntu-latest
+#     environment: dev # Fetches the env variables for dev
+#     permissions:
+#       contents: read
+#       id-token: write
+#     steps:
+#       - name: Checkout actions-oidc-debugger
+#         uses: actions/checkout@v3
+#       - id: auth
+#         name: Authenticate to Google Cloud
+#         uses: google-github-actions/auth@v2
+#         with:
+#           create_credentials_file: true
+#           token_format: 'access_token'
+#           project_id: "terraform-gcp-419906"
+#           workload_identity_provider: "projects/490858522912/locations/global/workloadIdentityPools/terraform-pool1/providers/terraform-pool1"
+#           service_account: "terraform-gcp@terraform-gcp-419906.iam.gserviceaccount.com"
+#           # audience: "https://iam.googleapis.com/projects/490858522912/locations/global/workloadIdentityPools/terraform-pool1/providers/terraform-pool1"
+
 jobs:
-  job_id:
+  build:
+    name: "Test WIF"
     runs-on: ubuntu-latest
-    environment: dev # Fetches the env variables for dev
+    timeout-minutes: 90
     permissions:
-      contents: read
-      id-token: write
+      contents: 'read'
+      id-token: 'write'
     steps:
-      - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
       - id: auth
-        name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v0.4.0
         with:
+          token_format: "access_token"
           create_credentials_file: true
-          token_format: 'access_token'
-          project_id: "terraform-gcp-419906"
+          activate_credentials_file: true
           workload_identity_provider: "projects/490858522912/locations/global/workloadIdentityPools/terraform-pool1/providers/terraform-pool1"
           service_account: "terraform-gcp@terraform-gcp-419906.iam.gserviceaccount.com"
-          # audience: "https://iam.googleapis.com/projects/490858522912/locations/global/workloadIdentityPools/terraform-pool1/providers/terraform-pool1"
+          access_token_lifetime: '100s'
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.3.0
+      - name: set crdential_file
+        run: gcloud auth login --cred-file=log/ad.json
+      - name: Run gcloud
+        run: gcloud compute instances list --zones us-east4-c
+
 
       # # NOTE: Alternative option - authentication via credentials json
       # # - name: Google Auth
