@@ -55,7 +55,7 @@ env:
   # REGION: YOUR_SERVICE_REGION # TODO: update Cloud Run service region
 
 jobs:
-  runs-on:
+  runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
       contents: 'read'
