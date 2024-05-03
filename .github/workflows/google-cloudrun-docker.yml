@@ -72,6 +72,7 @@ jobs:
           project_id: "terraform-gcp-419906"
           workload_identity_provider: "projects/490858522912/locations/global/workloadIdentityPools/terraform-pool/attribute.repository/mjprajasekar/gcp-trigger"
           service_account: "terraform-gcp@terraform-gcp-419906.iam.gserviceaccount.com"
+          audience: 'projects/123456789/locations/global/workloadIdentityPools/terraform-pool/providers/Terraform provider'
 
       # # NOTE: Alternative option - authentication via credentials json
       # # - name: Google Auth
