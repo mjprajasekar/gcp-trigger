@@ -1,24 +1,30 @@
-name: List services in GCP Console
 on:
-  push:
-    branches: [ "main" ]
+  workflow_call:
 
-permissions:
-  id-token: write
+  push:
+    branches:
+      - "main"
 
 jobs:
-  Get_OIDC_ID_token:
+  auth-oidc:
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
-    - id: 'auth'
-      name: 'Authenticate to GCP'
-      uses: 'google-github-actions/auth@v0.3.1'
-      with:
-          create_credentials_file: 'true'
-          workload_identity_provider: "projects/490858522912/locations/global/workloadIdentityPools/terraform-pool1/providers/terraform-pool1"
-          service_account: "terraform-gcp@terraform-gcp-419906.iam.gserviceaccount.com"
-    - id: 'gcloud'
-      name: 'gcloud'
-      run: |-
-        gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}" --project="terraform-gcp-419906"
-        gcloud services list
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          project_id: terraform-gcp-419906
+          service_account: oidc-service-account@terraform-gcp-419906.iam.gserviceaccount.com # replace with your service account name
+          workload_identity_provider: projects/490858522912/locations/global/workloadIdentityPools/oidc-pool/providers/oidc-gh-provider # replace with your WIF provider name
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: Use gcloud CLI
+        run: |
+          gcloud auth list --filter=status:ACTIVE --format="value(account)"
